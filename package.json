@@ -1,7 +1,11 @@
 {
-  "name": "bun-dev-toolchain",
-  "version": "1.0.0",
-  "description": "Dev toolchain configuration for Bun project with PostgreSQL MCP querying",
+  "name": "bun",
+  "version": "1.4.0",
+  "description": "Incredibly fast JavaScript runtime, bundler, test runner, and package manager – all in one",
+  "private": true,
+  "scripts": {
+    "mcp:postgres": "npx -y @modelcontextprotocol/server-postgres postgresql://localhost:5432/bun_dev"
+  },
   "devDependencies": {
     "@modelcontextprotocol/server-postgres": "^0.6.2"
   }
