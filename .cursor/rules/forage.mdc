@@ -1,23 +1,27 @@
-# PostgreSQL MCP Server — Usage Rules
+# Agent Rules
 
-## When to use
-Use the `modelcontextprotocol__server-postgres` tools whenever you need to inspect or query a PostgreSQL database directly — e.g., checking table schemas, verifying data, debugging query results, or validating migrations during development.
+## PostgreSQL MCP Server (@modelcontextprotocol/server-postgres)
 
-## Available tools
+### When to use
+Use this tool whenever you need to inspect or query a PostgreSQL database: exploring table schemas, checking column names/types, running SELECT queries, aggregations, joins, or verifying data. The server provides **read-only** access — all queries run inside a READ ONLY transaction.
 
-### `modelcontextprotocol__server-postgres__query`
-- **Purpose**: Run a read-only SQL query against the connected PostgreSQL database.
-- **Input**: `sql` (string) — the SQL statement to execute.
-- **Safety**: ALL queries execute inside a `READ ONLY` transaction. `INSERT`, `UPDATE`, `DELETE`, `DROP`, and any other write/DDL statements will be rejected. Do not attempt writes through this tool.
-- **Returns**: Query result rows as JSON.
+### Available tool: `query`
+- **Tool name:** `foraged__modelcontextprotocol__server-postgres__query`
+- **Input:** `sql` (string) — the SQL query to execute.
+- **Behavior:** Executes read-only SQL against the connected database. Write operations (INSERT/UPDATE/DELETE/DDL) are rejected because every statement runs in a READ ONLY transaction.
 
-## Key patterns
-- Inspect schemas first: `SELECT column_name, data_type FROM information_schema.columns WHERE table_name = '<table>';`
-- List tables: `SELECT table_name FROM information_schema.tables WHERE table_schema = 'public';`
-- Always add `LIMIT` to exploratory `SELECT *` queries to avoid huge result sets (e.g., `LIMIT 50`).
-- Prefer explicit column lists over `SELECT *` in production-oriented queries.
-- The server also exposes per-table schema resources at `postgres://<host>/<table>/schema` (auto-discovered from database metadata) — use these to understand structure before writing queries.
+### Key patterns
+- **List tables:** `SELECT table_name FROM information_schema.tables WHERE table_schema = 'public';`
+- **Inspect a table's columns:** `SELECT column_name, data_type, is_nullable FROM information_schema.columns WHERE table_name = '<table>';`
+- **Read data:** `SELECT * FROM <table> LIMIT 50;`
+- **Aggregations:** `SELECT <col>, COUNT(*) FROM <table> GROUP BY <col> ORDER BY 2 DESC;`
+- Schema resources are also exposed per table at `postgres://<host>/<table>/schema` (JSON with column names and data types, auto-discovered from database metadata).
 
-## Configuration / connection
-- The server is launched with a PostgreSQL connection string as its argument: `npx -y @modelcontextprotocol/server-postgres postgresql://<user>:<password>@<host>:<port>/<database>`.
-- The connection string must be provided when the server starts; if queries fail with connection errors, verify the database URL and network reachability.
+### Configuration / required env
+- The server is launched via: `npx -y @modelcontextprotocol/server-postgres <connection-string>`
+- The connection string is passed as the first positional argument, e.g. `postgresql://localhost/mydb` (replace `mydb` with the target database name). A valid PostgreSQL connection string (host, port, user, password, database) must be configured for the server to connect.
+
+### Tips
+- Always prefer `LIMIT` on unbounded SELECTs to avoid huge result sets.
+- Quote identifiers with double quotes when table/column names are mixed-case or reserved words.
+- Do not attempt writes — they will fail by design; use this server for inspection and analytics only.
