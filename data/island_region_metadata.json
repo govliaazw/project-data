@@ -1,0 +1,29 @@
+{
+  "record_id": "siris_sil_264435",
+  "title": "The geography of Margarita and adjacent islands, Venezuela",
+  "museum": "Smithsonian Libraries (SIL)",
+  "date": "1958",
+  "authors": [
+    "Alexander, Charles S",
+    "University of California, Berkeley"
+  ],
+  "materials": "v, 85-193 p. illus., maps, tables. 26 cm",
+  "topics": [
+    "Islands"
+  ],
+  "places": [
+    "Venezuela",
+    "Margarita (Island)"
+  ],
+  "identifiers": {
+    "call_number": "F2331.M7A37 1958"
+  },
+  "cc0": true,
+  "link": "https://siris-libraries.si.edu/ipac20/ipac.jsp?&profile=liball&source=~!silibraries&uri=full=3100001~!264435~!0#focus",
+  "media": {
+    "total_items": 0,
+    "cc0_images": 0
+  },
+  "source": "Smithsonian Institution catalog",
+  "retrieved_for": "island region metadata archival"
+}
