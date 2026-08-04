@@ -1,23 +1,39 @@
-# PostgreSQL MCP Server — Usage Rules
+# Agent Rules
 
-## When to use
-Use the `modelcontextprotocol__server-postgres` tools whenever you need to inspect or query a PostgreSQL database directly — e.g., checking table schemas, verifying data, debugging query results, or validating migrations during development.
+## PostgreSQL MCP Server (@modelcontextprotocol/server-postgres)
 
-## Available tools
+### When to use
+Use the PostgreSQL query tool whenever you need to inspect or query a PostgreSQL database: exploring table schemas, running SELECT queries, checking row counts, or verifying data. The server provides **read-only** access — all queries run inside a READ ONLY transaction, so INSERT/UPDATE/DELETE/DDL statements are not permitted.
 
-### `modelcontextprotocol__server-postgres__query`
-- **Purpose**: Run a read-only SQL query against the connected PostgreSQL database.
-- **Input**: `sql` (string) — the SQL statement to execute.
-- **Safety**: ALL queries execute inside a `READ ONLY` transaction. `INSERT`, `UPDATE`, `DELETE`, `DROP`, and any other write/DDL statements will be rejected. Do not attempt writes through this tool.
-- **Returns**: Query result rows as JSON.
+### Available tool
+- **`query`** — Execute a read-only SQL query against the connected database.
+  - Input: `sql` (string) — the SQL query to execute.
+  - Returns: query result rows as JSON.
 
-## Key patterns
-- Inspect schemas first: `SELECT column_name, data_type FROM information_schema.columns WHERE table_name = '<table>';`
-- List tables: `SELECT table_name FROM information_schema.tables WHERE table_schema = 'public';`
-- Always add `LIMIT` to exploratory `SELECT *` queries to avoid huge result sets (e.g., `LIMIT 50`).
-- Prefer explicit column lists over `SELECT *` in production-oriented queries.
-- The server also exposes per-table schema resources at `postgres://<host>/<table>/schema` (auto-discovered from database metadata) — use these to understand structure before writing queries.
+### Connection
+The server is started with a PostgreSQL connection string passed as a CLI argument:
+```
+npx -y @modelcontextprotocol/server-postgres postgresql://localhost/mydb
+```
+Set the `POSTGRES_CONNECTION_STRING` environment variable (or pass the connection string directly) in the format `postgresql://[user[:password]@]host[:port]/dbname`.
 
-## Configuration / connection
-- The server is launched with a PostgreSQL connection string as its argument: `npx -y @modelcontextprotocol/server-postgres postgresql://<user>:<password>@<host>:<port>/<database>`.
-- The connection string must be provided when the server starts; if queries fail with connection errors, verify the database URL and network reachability.
+### Key patterns
+1. **Discover schema first**: Table schemas are exposed as MCP resources at `postgres://<host>/<table>/schema` (JSON with column names and data types, auto-discovered from database metadata). You can also query `information_schema.tables` and `information_schema.columns` directly.
+2. **Always limit results**: Use `LIMIT` on exploratory queries to avoid huge result sets.
+3. **Read-only safety**: Never attempt writes — the server enforces READ ONLY transactions.
+
+### Example queries
+```sql
+-- List all tables
+SELECT table_name FROM information_schema.tables WHERE table_schema = 'public';
+
+-- Inspect a table's columns
+SELECT column_name, data_type FROM information_schema.columns WHERE table_name = 'users';
+
+-- Query data
+SELECT * FROM users ORDER BY created_at DESC LIMIT 10;
+```
+
+### Notes
+- Package: `@modelcontextprotocol/server-postgres` v0.6.2 (official MCP reference server, MIT license).
+- Only the `query` tool is exposed; schema info comes via resources or information_schema queries.
