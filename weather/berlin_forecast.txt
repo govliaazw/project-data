@@ -1,0 +1,50 @@
+Berlin, Germany - Weather Forecast
+=====================================
+Location: Berlin, Berlin, Germany
+Coordinates: 52.5167°N, 13.4000°E
+Timezone: Europe/Berlin
+Local time: 2026-08-04 15:41
+
+Current Conditions (as of 2026-08-04 15:30):
+  Temperature: 34.6°C (94.3°F)
+  Feels like: 34.5°C (94.1°F)
+  Condition: Partly Cloudy
+  Wind: 12.2 km/h (7.6 mph) from S
+  Pressure: 1012.0 mb
+  Humidity: 34%
+  Cloud cover: 44%
+  Visibility: 10.0 km
+  UV index: 4.8
+  Heat index: 35.8°C
+
+3-Day Forecast:
+
+2026-08-04 (Today):
+  High: 34.8°C (94.7°F)  |  Low: 21.4°C (70.5°F)
+  Condition: Sunny
+  Chance of rain: 4%
+  Max wind: 17.3 km/h
+  UV index: 6.2
+  Sunrise: 05:31 AM  |  Sunset: 08:53 PM
+  Moon phase: Last Quarter
+
+2026-08-05 (Tomorrow):
+  High: 34.9°C (94.8°F)  |  Low: 21.6°C (70.9°F)
+  Condition: Sunny
+  Chance of rain: 0%
+  Max wind: 15.8 km/h
+  UV index: 6.4
+  Sunrise: 05:32 AM  |  Sunset: 08:51 PM
+  Moon phase: Waning Crescent
+
+2026-08-06 (Day after tomorrow):
+  High: 35.2°C (95.4°F)  |  Low: 22.1°C (71.8°F)
+  Condition: Sunny
+  Chance of rain: 0%
+  Max wind: 14.4 km/h
+  UV index: 6.5
+  Sunrise: 05:34 AM  |  Sunset: 08:50 PM
+  Moon phase: Waning Crescent
+
+Source: WeatherAPI.com
+Retrieved: 2026-08-04
