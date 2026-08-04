@@ -1,0 +1,167 @@
+> **NOTE:** This content was prepared as a GitHub issue, but issue creation is blocked on this account
+> (`govliaazw`) because it has **no verified email address** (GitHub requirement).
+> Once an email is verified, paste the content below into a new issue.
+
+---
+
+## Summary
+
+This issue consolidates four pieces of project context into a single tracking ticket:
+
+1. An upstream **bug report** from a scientific-computing article site (SciPy).
+2. The contents of the local **Docker configuration** for the project.
+3. A **JSON structure generated from code** (the session-slot scheduler).
+4. Details from a **local project file** (the repository README).
+
+---
+
+## 1. Upstream Bug Report (Scientific Article Site — SciPy)
+
+> **Source:** https://github.com/scipy/scipy/issues/25757
+> **Title:** BUG: `stats.trim_mean`: silently applies integer truncation when `proportiontocut * n` is non-integer
+> **Reported by:** @jcarlosgaviria  •  **State:** open  •  **Labels:** `defect`, `scipy.stats`  •  **Created:** 2026-07-30
+
+**Problem:** When `proportiontocut * n` is not an integer, `scipy.stats.trim_mean` silently applies *less* trimming than requested, with no warning to the user.
+
+**Reproducible example:**
+```python
+import numpy as np
+from scipy import stats
+
+x = np.array([850, 920, 980, 1050, 1120, 1180, 1250,
+              1320, 1400, 1480, 1550, 1700, 1850, 2100, 8500])
+
+# Type A: n=15, proportiontocut=0.05, k=0.75 -> floor(0.75)=0
+print(np.mean(x))                 # 1816.667
+print(stats.trim_mean(x, 0.05))   # 1816.667 -- no trimming applied
+# Correct result (Statgraphics): 1499.074
+
+# Type B: n=15, proportiontocut=0.10, k=1.50 -> 33% trimming loss
+print(stats.trim_mean(x, 0.10))   # 1376.923
+# Correct result (Statgraphics): 1365.833
+
+# Control: k exact integer -- correct
+print(stats.trim_mean(x, 1/15))
+```
+
+**Notes from the report:**
+- The same silent behavior exists in R base `mean(..., trim)`.
+- A `UserWarning` when `proportiontocut * n` is non-integer would be sufficient as a minimum fix.
+- A corrected implementation is available at https://pypi.org/project/sgmean/
+
+---
+
+## 2. Docker Configuration
+
+**`Dockerfile`** (KOSPI/KOSDAQ Stock Data MCP Server):
+```dockerfile
+# KOSPI/KOSDAQ Stock Data MCP Server
+# Requires Kakao login credentials via environment variables
+
+# Use Playwright's official Docker image for browser support
+FROM mcr.microsoft.com/playwright/python:v1.49.0-noble
+
+# Set working directory
+WORKDIR /app
+
+# Install uv for fast dependency management
+RUN pip install uv
+
+# Copy dependency files first for caching
+COPY pyproject.toml requirements.txt ./
+
+# Install dependencies
+RUN uv pip install --system -r requirements.txt
+
+# Install Playwright browsers
+RUN playwright install chromium
+
+# Copy application code
+COPY kospi_kosdaq_stock_server.py krx_data_client.py ./
+
+# Create non-root user for security
+RUN groupadd -r -g 1001 app && \
+    useradd -r -u 1001 -g app -m -d /home/app -s /bin/bash app && \
+    chown -R app:app /app
+
+# Create directory for session cookies
+RUN mkdir -p /home/app && chown -R app:app /home/app
+
+# Switch to non-root user
+USER app
+
+# Set environment variables
+ENV PYTHONUNBUFFERED=1
+ENV HOME=/home/app
+
+# Entry point
+ENTRYPOINT ["python", "-m", "kospi_kosdaq_stock_server"]
+```
+
+**`docker-compose.yml`**:
+```yaml
+version: '3.8'
+
+services:
+  kospi-kosdaq-mcp:
+    build: .
+    container_name: kospi-kosdaq-mcp-server
+    environment:
+      - PYTHONUNBUFFERED=1
+      - KAKAO_ID=${KAKAO_ID}
+      - KAKAO_PW=${KAKAO_PW}
+    volumes:
+      # Persist session cookies across restarts
+      - krx-session:/home/app
+    restart: unless-stopped
+    # For STDIO mode, use stdin_open and tty
+    stdin_open: true
+    tty: true
+
+volumes:
+  krx-session:
+    driver: local
+```
+
+---
+
+## 3. JSON Structure Generated from Code
+
+Produced by running the `bestSlot()` scheduler logic (from `session.ts`) over the candidate slots in `schedule.json`:
+
+```json
+{
+  "project": "ts-api-client",
+  "timezone": "Asia/Shanghai",
+  "scoring_rule": "best slot = highest focus_score among slots with zero conflicts",
+  "generated_by": "bestSlot() from session.ts (ported to Python)",
+  "best_slot": {
+    "id": 2,
+    "date": "2026-08-05",
+    "window": "14:00-16:00",
+    "attendees": 5,
+    "conflicts": 0,
+    "focus_score": 0.91
+  },
+  "evaluated_slots": 4,
+  "zero_conflict_slots": 1
+}
+```
+
+---
+
+## 4. Local Project File — `README.md`
+
+> **Repository:** `govliaazw/project-data`  •  **Default branch:** `main`
+
+- **`data/island_region_metadata.json`** — Full metadata for the island region of Margarita, Venezuela (Smithsonian Institution catalog record `siris_sil_264435`).
+- **`scripts/build.py`** — Build automation script developed and tested in an isolated sandbox environment.
+- **`weather/berlin_forecast.txt`** — Current weather forecast for Berlin, Germany.
+
+**Environment:**
+- Python virtual environment version: **3.11.15**
+- Build script tested successfully in sandbox on **2026-08-04**
+
+---
+
+*Issue auto-generated by consolidating an upstream bug report, the Docker config, code-generated JSON, and local project-file details.*
